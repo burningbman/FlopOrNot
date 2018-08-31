@@ -4,7 +4,7 @@
 	      http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	version="2.5">
 
-	<display-name>Flop or Not</display-name>
+	<display-name>Counter Web Application</display-name>
 
 	<servlet>
 		<servlet-name>mvc-dispatcher</servlet-name>
