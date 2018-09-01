@@ -9,7 +9,7 @@
 	<name>FlopOrNot Maven Webapp</name>
 	<url>http://maven.apache.org</url>
 	<properties>
-		<jdk.version>1.7</jdk.version>
+		<jdk.version>1.8</jdk.version>
 		<spring.version>4.1.1.RELEASE</spring.version>
 		<jstl.version>1.2</jstl.version>
 		<junit.version>4.11</junit.version>
@@ -67,6 +67,18 @@
 			<artifactId>spring-webmvc</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>jstl</groupId>
+			<artifactId>jstl</artifactId>
+			<version>1.2</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>taglibs</groupId>
+			<artifactId>standard</artifactId>
+			<version>1.1.2</version>
+			<scope>compile</scope>
+		</dependency>
 	</dependencies>
 	<build>
 		<finalName>FlopOrNot</finalName>
@@ -102,7 +114,7 @@
 				<artifactId>tomcat7-maven-plugin</artifactId>
 				<version>2.2</version>
 				<configuration>
-					<path>/CounterWebApp</path>
+					<path>/FlopOrNot</path>
 				</configuration>
 			</plugin>
 
