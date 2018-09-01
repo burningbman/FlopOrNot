@@ -4,9 +4,12 @@ function onFormSubmit(e) {
 	
 	// make an ajax call using jquery
 	$.ajax({
-		url: window.origin + '/FlopOrNot/calculate',
+		url: window.origin + '/calculate',
 		success: function(rating) {
 			alert(rating);
+		},
+		error: function() {
+			alert('Error calculating movie rating');
 		},
 		method: "PUT"
 	})
