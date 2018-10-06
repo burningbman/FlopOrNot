@@ -1,15 +1,16 @@
 import boto3
 import json
 import requests
+import time
 from decimal import Decimal
 
 # RESULTS_PER_PAGE = 20
-IGNORED_KEYS = ["also_known_as", "biography", "overview", "production_companies", "belongs_to_collection", "homepage"]
+IGNORED_KEYS = ["also_known_as", "biography", "overview", "production_companies", "belongs_to_collection", "homepage", "spoken_languages"]
 DECIMAL_KEYS = ["popularity", "vote_average"]
 
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table("flopOrNot")
-
+batch = table.batch_writer()
 
 def saveData(json):
     """Remove ignored keys, process decimal keys, and remove empty keys then save the object to the database"""
@@ -31,10 +32,14 @@ def saveData(json):
     for key in keysToPop:
         json.pop(key)
 
-    # save the item to the database
-    table.put_item(
-        Item=json
-    )
+    try:
+        # save the item to the database
+        batch.put_item(
+            Item=json
+        )
+    except:
+        print("Error with:")
+        print(json)
 
 
 def getMovieDBUrl(suffix):
@@ -52,7 +57,13 @@ def fetchAndSaveItem(url, itemPrefix):
         jsonData["relatedItemId"] = itemId
         saveData(jsonData)
     else:
-        print("No data returned for " + url)
+        if response.status_code == 429:
+            waitTime = response.headers["Retry-After"]
+            print("429 waiting " + str(waitTime))
+            time.sleep(waitTime)
+        print("Error code: " + str(response.status_code))
+
+    return response.status_code
 
 
 def fetchAndSavePersonById(personId):
@@ -76,32 +87,43 @@ def fetchAndSaveMovieCrewData(movieId):
                     "itemId": "person-" + str(castMember["id"]),
                     "relatedItemId": "movie-" + str(movieId),
                     "job": "Actor",
-                    "credit_id": str(castMember["credit_id"] )
+                    "credit_id": str(castMember["credit_id"])
                 })
         else:
             print("No cast data for " + str(movieId))
         
-        # add each crew member
+        # add the director
         if "crew" in jsonData:
             for crewMember in jsonData["crew"]:
-                saveData({
-                    "itemId": "person-" + str(crewMember["id"]),
-                    "relatedItemId": "movie-" + str(movieId),
-                    "job": crewMember["job"],
-                    "credit_id": str(crewMember["credit_id"])
-                })
+                if crewMember["job"] == "Director":
+                    saveData({
+                        "itemId": "person-" + str(crewMember["id"]),
+                        "relatedItemId": "movie-" + str(movieId),
+                        "job": crewMember["job"],
+                        "credit_id": str(crewMember["credit_id"])
+                    })
         else:
             print("No crew data for " + str(movieId))                
     else:
-        print("Issue fetching crew/cast data for movie with id " + str(movieId))
+        print("Error code: " + str(response.status_code))
+
+
+def loopAndAdd(startRange):
+    for i in range(startRange, startRange + 10):
+        fetchAndSavePersonById(i)
+        
+        # fetch movie, if it's there, fetch the crew data
+        if fetchAndSaveMovieById(i) == 200:
+            fetchAndSaveMovieCrewData(i)
+            
+        print("Completed fetching and loading on index " + str(i))
+        
+    loopAndAdd(startRange + 10)
+
 
 def main():    
-    startRange = 20
-    for i in range(startRange, startRange + 10):
-        fetchAndSaveMovieById(i)
-        fetchAndSavePersonById(i)
-        fetchAndSaveMovieCrewData(i)
-        print("Completed fetching and loading on index " + str(i))
+    loopAndAdd(16750)
+
         
 main()
 

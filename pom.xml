@@ -15,6 +15,7 @@
 		<junit.version>4.11</junit.version>
 		<logback.version>1.0.13</logback.version>
 		<jcl-over-slf4j.version>1.7.5</jcl-over-slf4j.version>
+		<dynamodb.version>1.11.420</dynamodb.version>
 	</properties>
 	<dependencies>
 		<!-- Unit Test -->
@@ -78,6 +79,12 @@
 			<artifactId>standard</artifactId>
 			<version>1.1.2</version>
 			<scope>compile</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-dynamodb</artifactId>
+			<version>${dynamodb.version}</version>
 		</dependency>
 	</dependencies>
 	<build>
