@@ -21,6 +21,16 @@ public class DatabaseUtil {
 	private static DynamoDB db = new DynamoDB(client);
 	private static Table flopOrNotTable = db.getTable("flopOrNot");
 	
+	public static Item getFakeActor(int id) {
+		float popularity = (float) (Math.random() * 16);
+		return new Item()
+				.withString("itemId", "person-" + id)
+				.withString("relatedItemId", "person-" + id)
+				.withInt("id", id)
+				.withFloat("popularity", popularity)
+				.withString("imdb_id", "nm" + id);
+	}
+	
 	public static Item getFakeMovie(int id) {
 		float popularity = (float) (Math.random() * 16);
 		int budget = (int) (Math.random() * 200000000);
@@ -28,7 +38,7 @@ public class DatabaseUtil {
 				.withString("itemId", "movie-" + id)
 				.withString("relatedItemId", "movie-" + id)
 				.withBoolean("adult", false)
-				.withString("id", String.valueOf(id))
+				.withInt("id", id)
 				.withFloat("popularity", popularity)
 				.withString("imdb_id", "tt" + id)
 				.withInt("budget", budget)
