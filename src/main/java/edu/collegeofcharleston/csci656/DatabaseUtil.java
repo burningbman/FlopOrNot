@@ -3,13 +3,19 @@ package edu.collegeofcharleston.csci656;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.dynamodbv2.document.BatchGetItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.ItemCollection;
+import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.QueryOutcome;
 import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.TableKeysAndAttributes;
 import com.amazonaws.services.dynamodbv2.document.spec.BatchGetItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
@@ -45,7 +51,7 @@ public class DatabaseUtil {
 				.withString("original_title", "Movie_" + id);
 	}
 	
-	public static ArrayList<Item> getFakeMovieArray(int count) {
+	public static List<Item> getFakeMovieList(int count) {
 		ArrayList<Item> fakeMovies = new ArrayList<>();
 		for (int i = 0; i < count; i++) {
 			fakeMovies.add(getFakeMovie(i));
@@ -53,36 +59,20 @@ public class DatabaseUtil {
 		return fakeMovies;
 	}
 	
-	private static ArrayList<Item> getMoviesById(String personId, ArrayList<String> ids) {
-		ValueMap valueMap = new ValueMap();
-		String query = "itemId = :id0";
-		valueMap.put(":id0", ids.get(0));
-		for (int i = 1; i < ids.size(); i++) {
-			String value = ":id" + i;
-			query += "OR itemId = " + value;
-			valueMap.put(value, ids.get(i));
-		}
-//		BatchGetItemSpec spec = new BatchGetItemSpec();
-//		spec.
-		//db.bat
+	private static List<Item> getMoviesById(ArrayList<String> ids) {
+		TableKeysAndAttributes attrs = new TableKeysAndAttributes(flopOrNotTable.getTableName());
+		for (String id : ids) {
+			attrs.addPrimaryKey(new PrimaryKey().addComponent("itemId", id).addComponent("relatedItemId", id));
+		}		
 		
-		QuerySpec querySpec = new QuerySpec().withKeyConditionExpression(query)
-				.withValueMap(valueMap)
-				.withFilterExpression("relatedItemId");
+		BatchGetItemSpec spec = new BatchGetItemSpec().withTableKeyAndAttributes(attrs);
+		BatchGetItemOutcome outcome = db.batchGetItem(spec);
+		Map<String, List<Item>> map = outcome.getTableItems();
 		
-		ItemCollection<QueryOutcome> collection = flopOrNotTable.query(querySpec);
-		Iterator<Item> iterator = collection.iterator();
-		
-		while (iterator.hasNext()) {
-			Item item = iterator.next();
-			String relatedItemId = item.getString("relatedItemId");
-
-		}
-		
-		return new ArrayList<Item>();
+		return map.get(flopOrNotTable.getTableName());
 	}
 
-	private static ArrayList<Item> getMoviesByPerson(String role, String id) {
+	private static List<Item> getMoviesByPerson(String role, String id) {
 		QuerySpec querySpec = new QuerySpec().withKeyConditionExpression("itemId = :person")
 				.withFilterExpression("job = :role")
 				.withValueMap(new ValueMap().withString(":person", id).withString(":role", role));
@@ -101,7 +91,7 @@ public class DatabaseUtil {
 		}
 
 		if (ids.size() > 0) {
-			return getMoviesById(id, ids);
+			return getMoviesById(ids);
 		} else {
 			return new ArrayList<Item>();
 		}
@@ -125,7 +115,7 @@ public class DatabaseUtil {
 		return id;
 	}
 
-	private static ArrayList<Item> getMoviesByNameAndRole(String name, String role) {
+	private static List<Item> getMoviesByNameAndRole(String name, String role) {
 		String id = getPersonIdByName(name);
 		if (id != null) {
 			return getMoviesByPerson(role, id);
@@ -134,11 +124,11 @@ public class DatabaseUtil {
 		}
 	}
 
-	public static ArrayList<Item> getMoviesForActor(String name) {
+	public static List<Item> getMoviesForActor(String name) {
 		return getMoviesByNameAndRole(name, "Actor");
 	}
 
-	public static ArrayList<Item> getMoviesForDirector(String name) {
+	public static List<Item> getMoviesForDirector(String name) {
 		return getMoviesByNameAndRole(name, "Director");
 	}
 
