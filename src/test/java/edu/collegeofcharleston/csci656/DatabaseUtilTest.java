@@ -13,6 +13,7 @@ import com.amazonaws.services.dynamodbv2.document.Item;
 
 public class DatabaseUtilTest {
 	@Ignore
+	@Test
 	public void testGettingMoviesForDirector() {
 		List<Item> movies = DatabaseUtil.getMoviesForDirector("George Lucas");
 		assertEquals(5, movies.size());
@@ -36,6 +37,7 @@ public class DatabaseUtilTest {
 	}
 
 	@Test
+	@Ignore
 	public void testGettingMoviesForActor() {
 		List<Item> movies = DatabaseUtil.getMoviesForActor("Harrison Ford");
 		assertEquals(14, movies.size());
@@ -45,5 +47,11 @@ public class DatabaseUtilTest {
 			assertTrue(movie.getString("itemId").startsWith("movie-"));
 			assertTrue(movie.getString("relatedItemId").startsWith("movie-"));
 		}
+	}
+	
+	@Test
+	public void testGettingPersonsStartingWith() {
+		List <Item> persons = DatabaseUtil.getPersonsWithNameStartingWith("Ha");
+		assertEquals(10, persons.size());
 	}
 }
