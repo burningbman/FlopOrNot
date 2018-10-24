@@ -13,7 +13,7 @@ public class BrainTest {
 		String[] actors = {"Seth Rogan", "Zac Efron", "Jonah Hill", "Aubrey Plaza"};
 		int rating = brainB.calculateMovieRating("Quentin Tarantino", actors, 180000000);
 		
-		int expectedRating = 11;
+		int expectedRating = 12;
 		
 		assertEquals(rating, expectedRating);
 		
