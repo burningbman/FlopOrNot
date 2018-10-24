@@ -22,7 +22,6 @@ public class BaseController {
 	@RequestMapping(value = "/calculate", method = RequestMethod.PUT)
 	public @ResponseBody String calculateMovieRating(ModelMap model) {
 		logger.debug("calculating movie rating");
-		String[] actors = {"Miley Cyrus", "Selena Gomez","Zac Efron" };
-		return String.valueOf(Brain.calculateMovieRating("Quentin Tarantino",actors, 600000000));
+		return String.valueOf(Brain.calculateMovieRating());
 	}
 }
