@@ -27,10 +27,10 @@ import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.amazonaws.services.dynamodbv2.document.ScanOutcome;
 
 public class DatabaseUtil {
-	private static AmazonDynamoDB client;// = AmazonDynamoDBClientBuilder.standard().build();
-	private static DynamoDB db ;//= new DynamoDB(client);
-	private static Table flopOrNotTable ;//= db.getTable("flopOrNot");
-	private static Index names ;//= flopOrNotTable.getIndex("name-index");
+	private static AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard().build();
+	private static DynamoDB db = new DynamoDB(client);
+	private static Table flopOrNotTable = db.getTable("flopOrNot");
+	private static Index names = flopOrNotTable.getIndex("name-index");
 //sarah use for testing
 	public static Item getFakeActor(int id) {
 		float popularity = (float) (Math.random() * 16);
