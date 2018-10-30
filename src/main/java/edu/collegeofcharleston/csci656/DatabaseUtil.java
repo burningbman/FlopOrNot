@@ -32,12 +32,13 @@ public class DatabaseUtil {
 	private static Table flopOrNotTable = db.getTable("flopOrNot");
 	private static Index names = flopOrNotTable.getIndex("name-index");
 
+//sarah use for testing
 	public static Item getFakeActor(int id) {
 		float popularity = (float) (Math.random() * 16);
 		return new Item().withString("itemId", "person-" + id).withString("relatedItemId", "person-" + id)
 				.withInt("id", id).withFloat("popularity", popularity).withString("imdb_id", "nm" + id);
 	}
-
+	//sarah use for testing
 	public static Item getFakeMovie(int id) {
 		float popularity = (float) (Math.random() * 16);
 		int budget = (int) (Math.random() * 200000000);
@@ -45,7 +46,7 @@ public class DatabaseUtil {
 				.withBoolean("adult", false).withInt("id", id).withFloat("popularity", popularity)
 				.withString("imdb_id", "tt" + id).withInt("budget", budget).withString("original_title", "Movie_" + id);
 	}
-
+	//sarah use for testing
 	public static List<Item> getFakeMovieList(int count) {
 		ArrayList<Item> fakeMovies = new ArrayList<>();
 		for (int i = 0; i < count; i++) {
@@ -118,11 +119,11 @@ public class DatabaseUtil {
 			return new ArrayList<Item>();
 		}
 	}
-
+//sarah use
 	public static List<Item> getMoviesForActor(String name) {
 		return getMoviesByNameAndRole(name, "Actor");
 	}
-
+//sarah use
 	public static List<Item> getMoviesForDirector(String name) {
 		return getMoviesByNameAndRole(name, "Director");
 	}
