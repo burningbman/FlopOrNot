@@ -13,12 +13,13 @@ public class Brain {
 		4: Iterate through each row of the historical data set
 		5: experience_factor( ) calculates the number of hits are equivalent to the number of movies done by cast
 		so far
-//			6: dir_imdb_score, a1_imdb_score, a2_imdb_score are three lists which store the imdb scores of all the
+			6: dir_imdb_score, a1_imdb_score, a2_imdb_score are three lists which store the imdb scores of all the
 		movies done by the actors and director of the movie title which needs success prediction
-		7: dir_high_imdb_score, a1_high_imdb_score, a2_high_imdb_score are lists which store the imdb rates
+//		7: dir_high_imdb_score, a1_high_imdb_score, a2_high_imdb_score are lists which store the imdb rates
 		of the same director and actors respectively but the difference being the only those imdb scores are
-		stored that are above 7.8. Thus great artist factor comes into play. imdb_weight( ) calculates the
+		stored that are above 7.8.// Thus great artist factor comes into play. imdb_weight( ) calculates the
 		weights
+		
 		8: fame_rating( ) calculates the fam_factor by taking the number of voted users, number of critic reviews,
 		number of user reviews, cast facebook likes, movie facebook likes together and normalizing it on a
 		scale of {0.0...1.0}
@@ -43,9 +44,9 @@ public class Brain {
 		}
 		
 		//line 6 pseudo code
-		List<Integer> dir_imdb_score = listOfIMDBScores(director,"Director");
-		List<Integer> a1_imdb_score = listOfIMDBScores(actors[0], "Actor");
-		List<Integer> a2_imdb_score = listOfIMDBScores(actors[1], "Actor");
+		List<Double> dir_high_imdb_score = listOfhighestIMDBScores(director,"Director");
+		List<Double> a1_high_imdb_score = listOfhighestIMDBScores(actors[0], "Actor");
+		List<Double> a2_high_imdb_score = listOfhighestIMDBScores(actors[1], "Actor");
 		
 		
 		
@@ -70,8 +71,8 @@ public class Brain {
 	 * returns a list of imdb scores of the movies that the person was in. 
 	 */
 	
-	public static List<Integer> listOfIMDBScores(String person, String role){
-		List<Integer> returnList = null;
+	public static List<Double> listOfhighestIMDBScores(String person, String role){
+		List<Double> imdbScoreList = null;
 		List<Item> movieList=null;
 		int randNum = (int)(Math.random() * 10); //for testing
 		if(role=="Director"){
@@ -82,11 +83,11 @@ public class Brain {
 			movieList =  DatabaseUtil.getFakeMovieList(randNum); //for testing
 		}
 		for(int i=0; i<movieList.size();i++){
-			returnList.add((Integer) movieList.get(i).get("imdbRating"));
+			if((Double) movieList.get(i).get("imdbRating")>=7.8)
+				imdbScoreList.add((Double) movieList.get(i).get("imdbRating"));
 		}
-
-		
-		
-		return returnList;
+		return imdbScoreList;
 	}
+	
+	
 }
