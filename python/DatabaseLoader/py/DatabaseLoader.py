@@ -3,6 +3,7 @@ import json
 import requests
 import time
 from decimal import Decimal
+from DatabaseLoader.py.OmdbUtil import getImdbData
 
 # RESULTS_PER_PAGE = 20
 IGNORED_KEYS = ["also_known_as", "biography", "overview", "production_companies", "belongs_to_collection", "homepage", "spoken_languages"]
@@ -31,11 +32,14 @@ def saveData(json):
             keysToPop.append(key)            
     for key in keysToPop:
         json.pop(key)
+        
+    # get data from imdb
+    imdbData = getImdbData(json["imdb_id"])
 
     try:
         # save the item to the database
         batch.put_item(
-            Item=json
+            Item={**json, **imdbData}
         )
     except:
         print("Error with:")
