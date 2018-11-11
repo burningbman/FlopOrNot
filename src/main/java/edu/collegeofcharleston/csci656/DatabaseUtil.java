@@ -27,12 +27,12 @@ import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.amazonaws.services.dynamodbv2.document.ScanOutcome;
 
 public class DatabaseUtil {
-	private static AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard().build();
+	private static AmazonDynamoDB client= AmazonDynamoDBClientBuilder.standard().build();
 	private static DynamoDB db = new DynamoDB(client);
-	private static Table flopOrNotTable = db.getTable("flopOrNot");
+	private static Table flopOrNotTable= db.getTable("flopOrNot");
 	private static Index names = flopOrNotTable.getIndex("name-index");
 
-//sarah use for testing
+	//sarah use for testing
 	public static Item getFakeActor(int id) {
 		float popularity = (float) (Math.random() * 16);
 		return new Item().withString("itemId", "person-" + id).withString("relatedItemId", "person-" + id)
@@ -54,7 +54,7 @@ public class DatabaseUtil {
 		}
 		return fakeMovies;
 	}
-
+//--------------------------------------------------------------------------------------------------------------------------
 	private static List<Item> getMoviesById(ArrayList<String> ids) {
 		TableKeysAndAttributes attrs = new TableKeysAndAttributes(flopOrNotTable.getTableName());
 		for (String id : ids) {
@@ -94,21 +94,10 @@ public class DatabaseUtil {
 	}
 
 	private static String getPersonIdByName(String name) {
-		HashMap<String, String> attrNames = new HashMap<>();
-		attrNames.put("#name", "name");
-
-		QuerySpec querySpec = new QuerySpec().withKeyConditionExpression("#name = :name").withMaxResultSize(1)
-				.withNameMap(attrNames).withValueMap(new ValueMap().withString(":name", name));
-
-		ItemCollection<QueryOutcome> items = flopOrNotTable.getIndex("name-index").query(querySpec);
-
-		String id = null;
-		Iterator<Item> iterator = items.iterator();
-		while (iterator.hasNext()) {
-			Item item = iterator.next();
-			id = item.getString("itemId");
-		}
-		return id;
+		
+			return getPerson(name).getString("itemId");
+	
+	
 	}
 
 	private static List<Item> getMoviesByNameAndRole(String name, String role) {
@@ -126,6 +115,21 @@ public class DatabaseUtil {
 //sarah use
 	public static List<Item> getMoviesForDirector(String name) {
 		return getMoviesByNameAndRole(name, "Director");
+	}
+	
+	//sarah use
+	public static Item getPerson(String name){
+		HashMap<String, String> attrNames = new HashMap<>();
+		attrNames.put("#name", "name");
+
+		QuerySpec querySpec = new QuerySpec().withKeyConditionExpression("#name = :name").withMaxResultSize(1)
+				.withNameMap(attrNames).withValueMap(new ValueMap().withString(":name", name));
+
+		ItemCollection<QueryOutcome> items = flopOrNotTable.getIndex("name-index").query(querySpec);
+
+		Iterator<Item> iterator = items.iterator();
+		
+		return iterator.next();
 	}
 
 	/**
