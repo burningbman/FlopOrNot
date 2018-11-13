@@ -6,9 +6,8 @@ import com.amazonaws.services.dynamodbv2.document.Item;
 
 public class Brain {
 	public static int calculateMovieRating(String director, String[] actors, int budget) {
-
 		/* 
-		 * Begin
+		  Begin
 		2: Function rate_movie: Calls the function get_user_input( ) and stores the user input
 		3: Open the historical data set csv file
 		4: Iterate through each row of the historical data set
@@ -161,7 +160,7 @@ public class Brain {
 		
 		List<Double> profitList = null;
 		for(int i =0;i<movieList.size();i++){
-			Double profit = Double.parseDouble((String) movieList.get(i).get("BoxOffice")) - (Double)movieList.get(i).get("budget");//need gross or just give me profit from databaseUtil
+			Double profit =(Double) movieList.get(i).get("revenue") - (Double)movieList.get(i).get("budget");//need gross or just give me profit from databaseUtil
 			
 			profitList.add(profit);
 		}
@@ -203,7 +202,7 @@ public class Brain {
 		double popularityWeight = 0.5;  //#1
 		double profitWeight = 0.2;
 		
-		double expScaled = avgExperience/200; //whatever number ..... doesn't have to be 200
+		double expScaled = avgExperience/200; //highest number in DB
 		double IMDBScaled = avgIMDBScores/200; 
 		double popScaled = avgPopularity/200;
 		double proScaled = budgetProvided/avgProfit;
