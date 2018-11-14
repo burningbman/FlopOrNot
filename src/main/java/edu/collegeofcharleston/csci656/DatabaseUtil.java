@@ -127,6 +127,10 @@ public class DatabaseUtil {
 	public static List<Item> getMoviesForDirector(String name) {
 		return getMoviesByNameAndRole(name, "Director");
 	}
+	
+	public static Item getPerson(String name) {
+		
+	}
 
 	/**
 	 * Get at most 10 people that start with the passed in name.
