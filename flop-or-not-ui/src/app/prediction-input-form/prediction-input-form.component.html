@@ -1,0 +1,26 @@
+<div class="container">
+  <h1>Prediction Form</h1>
+  <!-- <form> -->
+    <div class="form-group">
+      <label for="director-name">Director</label>
+      <input type="text" class="form-control" id="director-name" required
+      [(ngModel)]="input.director">
+    </div>
+
+    <div class="form-group">
+      <label for="actor-name">Actor</label>
+      <input type="text" class="form-control" id="actor-name" required [(ngModel)]="input.actor">
+    </div>
+
+    <div class="form-group">
+      <label for="budget">Budget</label>
+      <input type="text" class="form-control" id="budget" required [(ngModel)]="input.budget">
+    </div>
+  
+
+    <button class="btn btn-success" (click)="moviePredictionService.getMoviePrediction(input)">Submit</button>
+
+    <app-prediction-results [results]="moviePredictionService.results"></app-prediction-results>
+
+  <!-- </form> -->
+</div>
