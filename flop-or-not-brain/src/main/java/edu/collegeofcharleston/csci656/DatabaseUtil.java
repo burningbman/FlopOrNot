@@ -26,7 +26,10 @@ import com.amazonaws.services.dynamodbv2.document.utils.NameMap;
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.amazonaws.services.dynamodbv2.document.ScanOutcome;
 
-public class DatabaseUtil {
+import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.services.lambda.runtime.Context; 
+
+public class DatabaseUtil implements RequestHandler<RequestClass, ResponseClass> {
 	private static AmazonDynamoDB client= AmazonDynamoDBClientBuilder.standard().build();
 	private static DynamoDB db = new DynamoDB(client);
 	private static Table flopOrNotTable= db.getTable("flopOrNot");
@@ -179,4 +182,28 @@ public class DatabaseUtil {
 		lineScan.close();
 		return fixedName.substring(0, fixedName.length() - 1);
 	}
+
+	@Override
+	public ResponseClass handleRequest(RequestClass input, Context context) {
+		List<Item> vals = new ArrayList<>();
+		String key = "";
+		switch(input.getAction()) {
+			case "userSearch":
+				vals = getPersonsWithNameStartingWith(input.getValue());
+				key = "name";
+			case "rateMovie":
+				int budget = Integer.parseInt(input.getBudget());
+				Brain.calculateMovieRating(input.getDirector(), input.getActors().split(","), budget);
+		}
+		String resp = "";
+		for (Item item : vals) {
+			resp += item.getString(key) + ',';
+		}
+		
+		ResponseClass response = new ResponseClass();
+		response.setValue(resp);
+		return response;
+	}
 }
+
+

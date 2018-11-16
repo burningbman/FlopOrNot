@@ -47,10 +47,13 @@ def saveData(json, itemPrefix):
         json.pop(key)
         
     # get data from imdb
-    if itemPrefix == "movie":
-        imdbData = getImdbData(json["imdb_id"])
-    else:
-        imdbData = {}
+    try:
+        if itemPrefix == "movie":
+            imdbData = getImdbData(json["imdb_id"])
+        else:
+            imdbData = {}
+    except:
+        print("Movie " + json["itemId"] + " exploded while getting imdb info")
 
     try:
         # save the item to the database
@@ -59,8 +62,10 @@ def saveData(json, itemPrefix):
         )
     except:
         print("Error with:")
-        print(json)
-
+        try:
+            print(json)
+        except:
+            print("something")
 
 def getMovieDBUrl(suffix):
     """Get the URL for themoviedb API given the suffix"""
@@ -87,7 +92,7 @@ def fetchAndSaveItem(itemId, itemPrefix):
         if response.status_code == 429:
             waitTime = response.headers["Retry-After"]
             print("429 waiting " + str(waitTime))
-            time.sleep(float(waitTime))
+            time.sleep(float(waitTime) + 1)
         print("Error : " + itemPrefix + "-" + str(itemId) + " " + str(response.status_code))
 
     return response.status_code
@@ -148,24 +153,4 @@ def loopAndAdd(startRange):
     loopAndAdd(startRange + 10)
 
 
-def main():    
-    loopAndAdd(1490)
-
-        
-main()
-
-# def saveFetchedMovieData(iJsonData, iActorId):
-#     for i in range (0, min(RESULTS_PER_PAGE, len(iJsonData["results"]))):
-#         movieData = iJsonData["results"][i]
-#         saveData({
-#             "itemId": "person-" + str(iActorId),
-#             "relatedItemId": "movie-" + str(movieData["id"]),
-#             "role": "actor"
-#         })
-# 
-#         
-# def retrieveAndSaveMovieDataByPage(iActorId, iPageNum):
-#     response = requests.get(getMovieDBUrl("discover/movie") + "&with_cast=" + str(iActorId) + "&page=" + str(iPageNum))
-#     jsonData = json.loads(response.text)
-#     saveFetchedMovieData(jsonData, iActorId)
-#     return jsonData.get("total_results")
+loopAndAdd(56215)
