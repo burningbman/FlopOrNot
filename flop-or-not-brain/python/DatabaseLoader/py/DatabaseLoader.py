@@ -3,7 +3,6 @@ import json
 import requests
 import time
 from decimal import Decimal
-from DatabaseLoader.py.OmdbUtil import getImdbData
 
 # RESULTS_PER_PAGE = 20
 IGNORED_KEYS = ["also_known_as", "biography", "overview", "production_companies", "belongs_to_collection", "homepage", "spoken_languages"]
@@ -13,7 +12,21 @@ dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table("flopOrNot")
 batch = table.batch_writer()
 
-def saveData(json):
+OMDB_URL = "http://www.omdbapi.com/?apikey=85704252&i="
+KEYS = ["Rated", "Ratings", "Metascore", "imdbRating", "imdbVotes", "BoxOffice", "Production"]
+
+def getImdbData(imdbId):
+    response = requests.get(OMDB_URL + str(imdbId))
+    data = {}
+    
+    if response.status_code == 200:
+        for key in KEYS:
+            jsonData = json.loads(response.text)
+            if (jsonData[key]):
+                data[key] = jsonData[key]
+    return data
+
+def saveData(json, itemPrefix):
     """Remove ignored keys, process decimal keys, and remove empty keys then save the object to the database"""
     
     # remove ignored keys
@@ -34,7 +47,13 @@ def saveData(json):
         json.pop(key)
         
     # get data from imdb
-    imdbData = getImdbData(json["imdb_id"])
+    try:
+        if itemPrefix == "movie":
+            imdbData = getImdbData(json["imdb_id"])
+        else:
+            imdbData = {}
+    except:
+        print("Movie " + json["itemId"] + " exploded while getting imdb info")
 
     try:
         # save the item to the database
@@ -43,15 +62,21 @@ def saveData(json):
         )
     except:
         print("Error with:")
-        print(json)
-
+        try:
+            print(json)
+        except:
+            print("something")
 
 def getMovieDBUrl(suffix):
     """Get the URL for themoviedb API given the suffix"""
     return "https://api.themoviedb.org/3/" + suffix + "?api_key=670a2f04173250a43eca59d9e2c922d9"
 
 
-def fetchAndSaveItem(url, itemPrefix):
+def fetchAndSaveItem(itemId, itemPrefix):
+    if itemPrefix == "person":
+        url = getMovieDBUrl("person/" + str(itemId))
+    else:
+        url = getMovieDBUrl("movie/" + str(itemId))
     response = requests.get(url)
     
     if response.status_code == 200:
@@ -59,23 +84,26 @@ def fetchAndSaveItem(url, itemPrefix):
         itemId = itemPrefix + "-" + str(jsonData["id"])
         jsonData["itemId"] = itemId
         jsonData["relatedItemId"] = itemId
-        saveData(jsonData)
+        
+        saveData(jsonData, itemPrefix)
+        
+        print("Success: " + itemId)
     else:
         if response.status_code == 429:
             waitTime = response.headers["Retry-After"]
             print("429 waiting " + str(waitTime))
-            time.sleep(waitTime)
-        print("Error code: " + str(response.status_code))
+            time.sleep(float(waitTime) + 1)
+        print("Error : " + itemPrefix + "-" + str(itemId) + " " + str(response.status_code))
 
     return response.status_code
 
 
 def fetchAndSavePersonById(personId):
-    fetchAndSaveItem(getMovieDBUrl("person/" + str(personId)), "person")
+    fetchAndSaveItem(personId, "person")
 
     
 def fetchAndSaveMovieById(movieId):
-    fetchAndSaveItem(getMovieDBUrl("movie/" + str(movieId)), "movie")
+    fetchAndSaveItem(movieId, "movie")
 
 
 def fetchAndSaveMovieCrewData(movieId):
@@ -120,29 +148,9 @@ def loopAndAdd(startRange):
         if fetchAndSaveMovieById(i) == 200:
             fetchAndSaveMovieCrewData(i)
             
-        print("Completed fetching and loading on index " + str(i))
+        #print("Completed fetching and loading on index " + str(i))
         
     loopAndAdd(startRange + 10)
 
 
-def main():    
-    loopAndAdd(16750)
-
-        
-main()
-
-# def saveFetchedMovieData(iJsonData, iActorId):
-#     for i in range (0, min(RESULTS_PER_PAGE, len(iJsonData["results"]))):
-#         movieData = iJsonData["results"][i]
-#         saveData({
-#             "itemId": "person-" + str(iActorId),
-#             "relatedItemId": "movie-" + str(movieData["id"]),
-#             "role": "actor"
-#         })
-# 
-#         
-# def retrieveAndSaveMovieDataByPage(iActorId, iPageNum):
-#     response = requests.get(getMovieDBUrl("discover/movie") + "&with_cast=" + str(iActorId) + "&page=" + str(iPageNum))
-#     jsonData = json.loads(response.text)
-#     saveFetchedMovieData(jsonData, iActorId)
-#     return jsonData.get("total_results")
+loopAndAdd(56215)

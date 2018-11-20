@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import org.json.simple.JSONObject;
+
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.BatchGetItemOutcome;
@@ -26,7 +28,10 @@ import com.amazonaws.services.dynamodbv2.document.utils.NameMap;
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.amazonaws.services.dynamodbv2.document.ScanOutcome;
 
-public class DatabaseUtil {
+import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.services.lambda.runtime.Context; 
+
+public class DatabaseUtil implements RequestHandler<RequestClass, ResponseClass> {
 	private static AmazonDynamoDB client= AmazonDynamoDBClientBuilder.standard().build();
 	private static DynamoDB db = new DynamoDB(client);
 	private static Table flopOrNotTable= db.getTable("flopOrNot");
@@ -179,4 +184,30 @@ public class DatabaseUtil {
 		lineScan.close();
 		return fixedName.substring(0, fixedName.length() - 1);
 	}
+	
+	private String getNameStringFromItemList(List <Item> vals) {
+		String resp = "";
+		for (Item item : vals) {
+			resp += item.getString("name") + ',';
+		}
+		return resp;
+	}
+
+	@Override
+	public ResponseClass handleRequest(RequestClass input, Context context) {
+		ResponseClass response = new ResponseClass();
+		switch(input.getAction()) {
+			case "userSearch":
+				response.setValue(getNameStringFromItemList(getPersonsWithNameStartingWith(input.getValue())));
+			case "rateMovie":
+				int budget = Integer.parseInt(input.getBudget());
+				JSONObject rating = Brain.calculateMovieRating(input.getDirector(), input.getActors().split(","), budget);
+				response.setNumberRating(String.valueOf(rating.get("numberRating")));
+				response.setWordRating((String) rating.get("wordRating")); 
+		}
+		
+		return response;
+	}
 }
+
+

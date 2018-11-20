@@ -4,18 +4,16 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>edu.collegeofcharleston.csci656</groupId>
 	<artifactId>FlopOrNot</artifactId>
-	<packaging>war</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>FlopOrNot Maven Webapp</name>
+	<name>FlopOrNot</name>
 	<url>http://maven.apache.org</url>
+	<packaging>jar</packaging>
 	<properties>
 		<jdk.version>1.8</jdk.version>
-		<spring.version>4.1.1.RELEASE</spring.version>
-		<jstl.version>1.2</jstl.version>
 		<junit.version>4.11</junit.version>
-		<logback.version>1.0.13</logback.version>
-		<jcl-over-slf4j.version>1.7.5</jcl-over-slf4j.version>
 		<dynamodb.version>1.11.420</dynamodb.version>
+		<lamdba.version>1.1.0</lamdba.version>
+		<json.version>1.1</json.version>
 	</properties>
 	<dependencies>
 		<!-- Unit Test -->
@@ -24,68 +22,26 @@
 			<artifactId>junit</artifactId>
 			<version>${junit.version}</version>
 		</dependency>
-
-		<!-- Spring Core -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-core</artifactId>
-			<version>${spring.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>commons-logging</groupId>
-					<artifactId>commons-logging</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-			<version>3.1.0</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>jcl-over-slf4j</artifactId>
-			<version>${jcl-over-slf4j.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<version>${logback.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-web</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-webmvc</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>jstl</groupId>
-			<artifactId>jstl</artifactId>
-			<version>1.2</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>taglibs</groupId>
-			<artifactId>standard</artifactId>
-			<version>1.1.2</version>
-			<scope>compile</scope>
-		</dependency>
 		
 		<dependency>
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-java-sdk-dynamodb</artifactId>
 			<version>${dynamodb.version}</version>
 		</dependency>
+		
+		<dependency>
+		    <groupId>com.amazonaws</groupId>
+		    <artifactId>aws-lambda-java-core</artifactId>
+		    <version>${lamdba.version}</version>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple -->
+		<dependency>
+		    <groupId>com.googlecode.json-simple</groupId>
+		    <artifactId>json-simple</artifactId>
+		    <version>${json.version}</version>
+		</dependency>
+		
 	</dependencies>
 	<build>
 		<finalName>FlopOrNot</finalName>
@@ -115,38 +71,10 @@
 				</configuration>
 			</plugin>
 
-			<!-- For Maven Tomcat Plugin -->
-			<plugin>
-				<groupId>org.apache.tomcat.maven</groupId>
-				<artifactId>tomcat7-maven-plugin</artifactId>
-				<version>2.2</version>
-				<configuration>
-					<path>/</path>
-				</configuration>
-			</plugin>
-
-			<!-- Webapp Runner Plugin -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>copy</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-								<artifactItem>
-									<groupId>com.github.jsimone</groupId>
-									<artifactId>webapp-runner</artifactId>
-									<version>9.0.11.0</version>
-									<destFileName>webapp-runner.jar</destFileName>
-								</artifactItem>
-							</artifactItems>
-						</configuration>
-					</execution>
-				</executions>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>2.3</version>
 			</plugin>
 		</plugins>
 	</build>
