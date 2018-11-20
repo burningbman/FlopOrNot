@@ -1,11 +1,11 @@
 package edu.collegeofcharleston.csci656;
 
 import java.util.List;
-
+import org.json.simple.JSONObject;
 import com.amazonaws.services.dynamodbv2.document.Item;
 
 public class Brain {
-	public static int calculateMovieRating(String director, String[] actors, int budget) {
+	public static JSONObject calculateMovieRating(String director, String[] actors, int budget) {
 		/* 
 		  Begin
 		2: Function rate_movie: Calls the function get_user_input( ) and stores the user input
@@ -62,10 +62,50 @@ public class Brain {
 		
 		double avgProfit = averageProfit(dirProfitList, a1ProfitList, a2ProfitList);
 		
-		int rating = getRating(avgExperience, avgIMDBScores, avgPopularity, avgProfit, budget);
+		double rating = getRating(avgExperience, avgIMDBScores, avgPopularity, avgProfit, budget);
 		
-		return rating;
-	}	
+		return jsonRating(rating);
+		
+	}
+
+	private static JSONObject jsonRating(double rating) {
+		JSONObject json = new JSONObject();
+		if(rating>=0 && rating<=2.9){
+			json.put("wordRating", "FLOP");
+			json.put("numberRating", rating);
+			return json;
+		}		
+		else if(rating>2.9 && rating<=4.9){
+			json.put("wordRating", "BAD");
+			json.put("numberRating", rating);
+			return json;
+		} 	
+		else if(rating>4.9 && rating<=5.9){
+			json.put("wordRating", "WATCHABLE");
+			json.put("numberRating", rating);
+			return json;
+		} 	
+		else if(rating>5.9 && rating<=6.9){
+			json.put("wordRating", "DECENT");
+			json.put("numberRating", rating);
+			return json;
+		} 
+		else if(rating>6.9 && rating<=7.9){
+			json.put("wordRating", "GOOD");
+			json.put("numberRating", rating);
+			return json;
+		}
+		else if(rating>7.9 && rating<=8.9){
+			json.put("wordRating", "GREAT");
+			json.put("numberRating", rating);
+			return json;
+		}	
+		else{
+			json.put("wordRating", "AMAZING");
+			json.put("numberRating", rating);
+			return json;
+		} 
+	}
 
 	/*
 	 * experienceFactor(String actor)
@@ -195,24 +235,26 @@ public class Brain {
 	 * getRating
 	 * gives the final rating score to return to controller
 	 */
-	private static int getRating(double avgExperience, double avgIMDBScores, double avgPopularity,
+	private static double getRating(double avgExperience, double avgIMDBScores, double avgPopularity,
 			double avgProfit, int budgetProvided) {
 		double experienceWeight = 0.15;
 		double IMDBWeight= 0.15;
 		double popularityWeight = 0.5;  //#1
 		double profitWeight = 0.2;
 		
-		double expScaled = avgExperience/200; //highest number in DB
-		double IMDBScaled = avgIMDBScores/200; 
-		double popScaled = avgPopularity/200;
+		double expScaled = avgExperience/280; //highest number in DB
+		double IMDBScaled = avgIMDBScores/54.846; 
+		double popScaled = avgPopularity/18.869; //actor popularity
 		double proScaled = budgetProvided/avgProfit;
 		
+		if(expScaled >1) expScaled=1;
+		if(IMDBScaled >1) IMDBScaled=1;
+		if(popScaled >1) popScaled=1;
 		if(proScaled>1) proScaled=1;
 		
-		double rating = expScaled*experienceWeight + IMDBScaled*IMDBWeight + 
-				popScaled*popularityWeight + proScaled*profitWeight;
-		Long L = Math.round(rating);
-		int ratingFinal = Integer.valueOf(L.intValue());
-		return ratingFinal;
+		double rating = (expScaled*experienceWeight + IMDBScaled*IMDBWeight + 
+				popScaled*popularityWeight + proScaled*profitWeight)*10;
+		
+		return rating;
 	}
 }
