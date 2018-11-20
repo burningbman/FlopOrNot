@@ -20,7 +20,9 @@
 
     <button class="btn btn-success" (click)="moviePredictionService.getMoviePrediction(input)">Submit</button>
 
-    <app-prediction-results [results]="moviePredictionService.results"></app-prediction-results>
+    <div class="container" style="margin-top: 20px">
+      <app-prediction-results [results]="moviePredictionService.results"></app-prediction-results>
+    </div>
 
   <!-- </form> -->
 </div>
