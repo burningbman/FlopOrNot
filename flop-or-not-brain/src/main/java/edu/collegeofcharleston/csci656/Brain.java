@@ -42,8 +42,10 @@ public class Brain {
 		List<Item> dirMovieList = DatabaseUtil.getMoviesForDirector(director);
 
 		// line 5 pseudo code: TOTAL EXPERIENCE:
-		int totalExperience = a1MovieList.size() + a2MovieList.size();
-		double avgExperience = (double) totalExperience / actors.length;
+		int a1Experience = a1MovieList.size();
+		int a2Experience =a2MovieList.size();
+		int totalExperience =  a1Experience+ a2Experience;
+		double avgExperience = (double) totalExperience / 2;
 
 		// line 6 pseudo code: IMDB SCORES
 		List<Double> dirIMDBScore = listOfIMDBScores(dirMovieList);
@@ -60,13 +62,13 @@ public class Brain {
 		double avgPopularity = (dirPopularity + a1Popularity + a2Popularity) / 3;
 
 		// line 9 pseudo code: PROFITS
-		List<Double> dirProfitList = listOfMovieProfits(dirMovieList);
-		List<Double> a1ProfitList = listOfMovieProfits(a1MovieList);
-		List<Double> a2ProfitList = listOfMovieProfits(a2MovieList);
+		List<Double> dirBudgetList = listOfMovieBudgets(dirMovieList);
+		List<Double> a1BudgetList = listOfMovieBudgets(a1MovieList);
+		List<Double> a2BudgetList = listOfMovieBudgets(a2MovieList);
 
-		double avgProfit = averageProfit(dirProfitList, a1ProfitList, a2ProfitList);
+		double avgBudget = averageBudget(dirBudgetList, a1BudgetList, a2BudgetList);
 
-		double rating = getRating(avgExperience, avgIMDBScores, avgPopularity, avgProfit, budget);
+		double rating = getRating(avgExperience, avgIMDBScores, avgPopularity, avgBudget, budget);
 
 		return jsonRating(rating);
 
@@ -179,22 +181,22 @@ public class Brain {
 	 * listOfMovieProfits returns a list of Doubles that are the profits of the
 	 * movies from either the director or actor
 	 */
-	public static List<Double> listOfMovieProfits(List<Item> movieList) {
-		List<Double> profitList = new ArrayList<>();
+	public static List<Double> listOfMovieBudgets(List<Item> movieList) {
+		List<Double> budgetList = new ArrayList<>();
 		for (int i = 0; i < movieList.size(); i++) {
-			// need gross or just give me profit from databaseUtil
-			Double profit = movieList.get(i).getDouble("revenue") - movieList.get(i).getDouble("budget");
+			
+			Double budget = movieList.get(i).getDouble("budget");
 
-			profitList.add(profit);
+			budgetList.add(budget);
 		}
 
-		return profitList;
+		return budgetList;
 	}
 
 	/*
 	 * averageProfit returns the average of the profits of the director, and actors
 	 */
-	public static double averageProfit(List<Double> dirList, List<Double> a1List, List<Double> a2List) {
+	public static double averageBudget(List<Double> dirList, List<Double> a1List, List<Double> a2List) {
 		int movieCount = 0;
 		int profit = 0;
 		for (int i = 0; i < dirList.size(); i++) {
@@ -217,17 +219,17 @@ public class Brain {
 	/*
 	 * getRating gives the final rating score to return to controller
 	 */
-	private static double getRating(double avgExperience, double avgIMDBScores, double avgPopularity, double avgProfit,
+	private static double getRating(double avgExperience, double avgIMDBScores, double avgPopularity, double avgBudget,
 			int budgetProvided) {
-		double experienceWeight = 0.15;
-		double IMDBWeight = 0.15;
-		double popularityWeight = 0.5; // #1
-		double profitWeight = 0.2;
+		double experienceWeight = 0.13;
+		double IMDBWeight = 0.25;
+		double popularityWeight = 0.55; // #1
+		double budgetWeight = 0.08;
 
-		double expScaled = avgExperience / 280; // highest number in DB
-		double IMDBScaled = avgIMDBScores / 54.846;
-		double popScaled = avgPopularity / 18.869; // actor popularity
-		double proScaled = budgetProvided / avgProfit;
+		double expScaled = avgExperience/23; // highest number in DB
+		double IMDBScaled = avgIMDBScores/10;
+		double popScaled = avgPopularity/10; // actor popularity
+		double budScaled = budgetProvided/avgBudget;
 
 		if (expScaled > 1)
 			expScaled = 1;
@@ -235,11 +237,11 @@ public class Brain {
 			IMDBScaled = 1;
 		if (popScaled > 1)
 			popScaled = 1;
-		if (proScaled > 1)
-			proScaled = 1;
+		if (budScaled > 1)
+			budScaled = 1;
 
-		double rating = (expScaled * experienceWeight + IMDBScaled * IMDBWeight + popScaled * popularityWeight
-				+ proScaled * profitWeight) * 10;
+		double rating = ((expScaled * experienceWeight) + (IMDBScaled * IMDBWeight) + (popScaled * popularityWeight)
+				+ (budScaled * budgetWeight)) * 10;
 
 		return rating;
 	}
