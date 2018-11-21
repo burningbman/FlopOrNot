@@ -5,8 +5,8 @@ import org.junit.Test;
 public class BrainTest {
 	@Test
 	public void calculateMovieRatingTest(){	
-		String[] actors = {"Zac Efron", "Seth Rogen"};
-		System.out.println(Brain.calculateMovieRating("Michael Bay", actors, 180000000));
+		String[] actors = {"Tom Cruise", "Morgan Freeman"};
+		System.out.println(Brain.calculateMovieRating("Steven Spielberg", actors, 120000000));
 	}
 
 }
