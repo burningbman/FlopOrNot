@@ -10,9 +10,10 @@ import { MoviePredictionService } from '../movie-prediction.service';
 export class PredictionInputFormComponent implements OnInit {
 
   input: PredictionInput = {
-    director: 'Josh Paul',
-    actor: 'Ryan Gosling',
-    budget: 120000
+    director: 'Michael Bay',
+    actor1: 'Tom Cruise',
+    actor2: 'Harrison Ford',
+    budget: 10000000
   };
 
   constructor(public moviePredictionService: MoviePredictionService) { }
