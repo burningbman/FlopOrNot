@@ -1,6 +1,6 @@
 export class PredictionInput {
     director: string;
-    // actors: string[];
-    actor: string;
-    budget: number;
+    actor1: string;
+    actor2: string;
+    budget: string;
 }
