@@ -1,3 +1,4 @@
 export class PredictionResults {
-    IMDBScore: number;
+    numberRating: number;
+    wordRating: string;
 }
